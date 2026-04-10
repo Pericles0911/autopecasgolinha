@@ -1,9 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import api from '../api/api';
 
-/* ======================
-   Funções de máscara
-====================== */
 function onlyDigits(v) {
   return (v || '').replace(/\D/g, '');
 }
@@ -34,9 +31,6 @@ function maskTelefone(value) {
     .slice(0, 15);
 }
 
-/* ======================
-   Componente
-====================== */
 export default function FormFornecedor() {
   const [form, setForm] = useState({
     nome: '',
@@ -65,10 +59,8 @@ export default function FormFornecedor() {
     else if (![10, 11].includes(telDigits.length)) e.telefone = 'Telefone deve ter 10 ou 11 dígitos.';
 
     if (!form.email.trim()) e.email = 'Informe o e-mail.';
-    // validação simples de e-mail (o backend também valida)
     else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = 'E-mail inválido.';
 
-    // endereço e contato são opcionais (se quiser obrigar, eu ajusto)
     return e;
   }, [form.nome, cnpjDigits, telDigits, form.email]);
 
@@ -79,22 +71,21 @@ export default function FormFornecedor() {
   }
 
   function resetForm() {
-  setForm({
-    nome: '',
-    cnpj: '',
-    endereco: '',
-    telefone: '',
-    email: '',
-    contato_principal: '',
-  });
-  setTouched({});
-}
+    setForm({
+      nome: '',
+      cnpj: '',
+      endereco: '',
+      telefone: '',
+      email: '',
+      contato_principal: '',
+    });
+    setTouched({});
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage(null);
 
-    // força exibir erros se tentar enviar
     setTouched({
       nome: true,
       cnpj: true,
@@ -107,28 +98,20 @@ export default function FormFornecedor() {
     if (!isValid) return;
 
     setSubmitting(true);
-try {
-  await api.post('/fornecedores', form);
-
-  // ✅ mensagem deve ficar AQUI
-  setMessage('Fornecedor cadastrado com sucesso!');
-
-  // ✅ limpa apenas os campos
-  resetForm();
-} catch (err) {
-  // ✅ mensagem de erro
-  setMessage(
-    err.response?.data?.message || 'Erro ao cadastrar fornecedor.'
-  );
-} finally {
-  // ✅ apenas controla loading
-  setSubmitting(false);
-}
+    try {
+      await api.post('/fornecedores', form);
+      setMessage('Fornecedor cadastrado com sucesso!');
+      resetForm();
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Erro ao cadastrar fornecedor.');
+    } finally {
+      setSubmitting(false);
+    }
   }
+
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ display: 'grid', gap: 10 }}>
-        {/* Nome */}
         <div style={{ display: 'grid', gap: 6 }}>
           <input
             name="nome"
@@ -141,7 +124,6 @@ try {
           {touched.nome && errors.nome && <small style={{ color: 'crimson' }}>{errors.nome}</small>}
         </div>
 
-        {/* CNPJ */}
         <div style={{ display: 'grid', gap: 6 }}>
           <input
             name="cnpj"
@@ -154,7 +136,6 @@ try {
           {touched.cnpj && errors.cnpj && <small style={{ color: 'crimson' }}>{errors.cnpj}</small>}
         </div>
 
-        {/* Endereço */}
         <div style={{ display: 'grid', gap: 6 }}>
           <textarea
             name="endereco"
@@ -166,7 +147,6 @@ try {
           />
         </div>
 
-        {/* Telefone */}
         <div style={{ display: 'grid', gap: 6 }}>
           <input
             name="telefone"
@@ -179,7 +159,6 @@ try {
           {touched.telefone && errors.telefone && <small style={{ color: 'crimson' }}>{errors.telefone}</small>}
         </div>
 
-        {/* Email */}
         <div style={{ display: 'grid', gap: 6 }}>
           <input
             name="email"
@@ -193,7 +172,6 @@ try {
           {touched.email && errors.email && <small style={{ color: 'crimson' }}>{errors.email}</small>}
         </div>
 
-        {/* Contato principal */}
         <div style={{ display: 'grid', gap: 6 }}>
           <input
             name="contato_principal"
@@ -204,7 +182,6 @@ try {
           />
         </div>
 
-        {/* Ações */}
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
           <button type="submit" disabled={submitting || !isValid} style={{ flex: 1 }}>
             {submitting ? 'Cadastrando...' : 'Cadastrar'}

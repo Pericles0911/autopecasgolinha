@@ -26,15 +26,10 @@ export default function FormProduto() {
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // imageMode:
-  // - 'url': usuário cola uma URL e ela é salva no backend
-  // - 'upload': usuário seleciona um arquivo e só vemos preview (NÃO salva no backend)
   const [imageMode, setImageMode] = useState('url');
 
-  // previewUrl é o que exibimos na tela (pode vir da URL digitada ou do arquivo local)
   const [previewUrl, setPreviewUrl] = useState('');
 
-  // file local (não vai pro backend)
   const [localFile, setLocalFile] = useState(null);
 
   const gtinDigits = useMemo(() => onlyDigits(form.gtin), [form.gtin]);
@@ -49,7 +44,6 @@ export default function FormProduto() {
   const isValid = Object.keys(errors).length === 0;
 
   function clearLocalPreview() {
-    // se era preview de arquivo, libera memória
     if (previewUrl && previewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -80,8 +74,6 @@ export default function FormProduto() {
     setImageMode('url');
     setMessage(null);
 
-    // ao voltar pra URL mode, usamos a URL do campo para preview
-    // e limpamos o arquivo local
     setLocalFile(null);
     if (previewUrl && previewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(previewUrl);
@@ -94,11 +86,9 @@ export default function FormProduto() {
   function switchToUploadMode() {
     setImageMode('upload');
     setMessage(null);
-
-    // no upload mode, NUNCA usamos image_url para salvar
-    // (você pode manter o texto no input, mas ele não será enviado)
+  
     setForm((prev) => ({ ...prev, image_url: '' }));
-    // limpamos preview de URL se houver
+   
     if (previewUrl && !previewUrl.startsWith('blob:')) {
       setPreviewUrl('');
     }
@@ -117,7 +107,7 @@ export default function FormProduto() {
       return;
     }
 
-    // validação leve (opcional)
+    
     if (!file.type.startsWith('image/')) {
       setMessage('Selecione um arquivo de imagem (PNG/JPG/WebP etc).');
       clearLocalPreview();
@@ -145,9 +135,7 @@ export default function FormProduto() {
 
     setSubmitting(true);
     try {
-      // ⚠️ IMPORTANTE:
-      // Se imageMode === 'upload', NÃO enviamos image_url (porque é só preview).
-      // Se imageMode === 'url', enviamos image_url normalmente.
+     
       const payload = {
         ...form,
         gtin: gtinDigits,
